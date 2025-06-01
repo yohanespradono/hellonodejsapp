@@ -61,7 +61,7 @@ jobs:
               export COMPOSE_FILE=~/docker-compose.production.yml
             elif [ "$BRANCH" = "develop" ]; then
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-staging
-              export COMPOSE_FILE=~/docker-compose.develop.yml
+              export COMPOSE_FILE=~/docker-compose.staging.yml
             else
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-stack
               export COMPOSE_FILE=~/docker-compose.yml
