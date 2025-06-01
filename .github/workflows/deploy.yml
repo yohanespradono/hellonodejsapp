@@ -59,4 +59,4 @@ jobs:
             export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-stack
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
             docker pull $DOCKER_HUB_REPOSITORY:$DOCKER_TAG
-            docker stack deploy -c docker-compose.${{ github.ref_name }}.yml $STACK_NAME
+            docker stack deploy -c docker-compose.${{ github.ref_name }}.yml $STACK_NAME --with-registry-auth
