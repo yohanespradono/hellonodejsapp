@@ -13,7 +13,7 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ vars.DOCKER_HUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_REPOSITORY }}
+      DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
       BRANCH: ${{ github.ref_name }}
     steps:
       - name: Checkout Code
@@ -42,6 +42,9 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ vars.DOCKER_HUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
+      DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
+      DOCKER_TAG: ${{ github.ref_name }}
     steps:
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
@@ -49,8 +52,8 @@ jobs:
           host: dev.atulatech.com
           port: 10022  # Use custom SSH port
           username: root
-          #key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-            docker pull $DOCKER_USERNAME/test-node-app:latest
-            docker stack deploy -c docker-compose.${{github.ref_name}}.yml nodejs-app-stack
+            docker pull $DOCKER_HUB_REPOSITORY:$DOCKER_TAG
+            docker stack deploy -c docker-compose.${{github.repo}}.yml ${DOCKER_HUB_APPNAME}-stack
