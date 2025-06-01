@@ -45,6 +45,7 @@ jobs:
       DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_TAG: ${{ github.ref_name }}
+      STACK_NAME: ${{ vars.DOCKER_HUB_APPNAME }}-stack
     steps:
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
@@ -56,4 +57,4 @@ jobs:
           script: |
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
             docker pull $DOCKER_HUB_REPOSITORY:$DOCKER_TAG
-            docker stack deploy -c docker-compose.${{github.repo}}.yml ${DOCKER_HUB_APPNAME}-stack
+            docker stack deploy -c docker-compose.${{github.repo}}.yml $STACK_NAME
