@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'main' && 'production' || 'staging' }}
+    #environment: ${{ github.ref == 'main' && 'production' || 'staging' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -26,14 +26,14 @@ jobs:
       - name: Build & Push Docker Image
         run: |
           docker build -t $DOCKER_USERNAME/nodejs-app:${{ github.sha }} .
-          docker tag $DOCKER_USERNAME/nodejs-app:${{ github.sha }} $DOCKER_USERNAME/nodejs-app:latest
+          docker tag $DOCKER_USERNAME/nodejs-app:${{ github.sha }} $DOCKER_USERNAME/test-node-app:latest
           docker push $DOCKER_USERNAME/nodejs-app:${{ github.sha }}
           docker push $DOCKER_USERNAME/nodejs-app:latest
 
   deploy:
     needs: build  # Deploy only after successful build
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    #environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
     steps:
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
