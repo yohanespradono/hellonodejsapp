@@ -33,7 +33,13 @@ jobs:
             docker tag $DOCKER_HUB_REPOSITORY:$BRANCH $DOCKER_HUB_REPOSITORY:latest
             docker push $DOCKER_HUB_REPOSITORY:latest
           fi
-
+      - name: Upload Compose File
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-file
+          path: |
+            docker-compose.production.yml
+            docker-compose.staging.yml
   deploy:
     needs: build  # Deploy only after successful build
     runs-on: ubuntu-latest
@@ -44,13 +50,10 @@ jobs:
       DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_TAG: ${{ github.ref_name }}
     steps:
-      - name: Upload Compose File
-        uses: actions/upload-artifact@v4
+      - name: Download Compose File
+        uses: actions/download-artifact@v4
         with:
           name: compose-file
-          path: |
-            docker-compose.production.yml
-            docker-compose.staging.yml
       - name: Check current active directory
         run: pwd && ls -la
       - name: SSH into Server & Deploy to Docker Swarm
