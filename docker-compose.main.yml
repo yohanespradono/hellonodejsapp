@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  myservice:
+    image: ${DOCKER_REPOSITORY}:${BUILD_TAG}
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    environment:
+      - NODE_ENV=production
+      - APP_VERSION=${BUILD_TAG}
+    healthcheck:
+      #this runs from the container's perspective
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1          # Update 1 container at a time
+        delay: 10s             # Wait 10s between updates
+        failure_action: rollback # Rollback on failure
+        monitor: 60s           # Monitor for 60s after update
+        max_failure_ratio: 0.3 # Allow 30% failure rate
+        order: start-first     # Start new before stopping old (zero downtime)
+      rollback_config:
+        parallelism: 1
+        delay: 0s
+        failure_action: pause
+        monitor: 60s
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  app-network:
+    driver: overlay
+    attachable: true
