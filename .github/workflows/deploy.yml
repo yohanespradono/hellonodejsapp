@@ -55,6 +55,8 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            export DOCKER_REPOSITORY=$DOCKER_HUB_REPOSITORY
+            export BUILD_TAG=$DOCKER_TAG
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
             docker pull $DOCKER_HUB_REPOSITORY:$DOCKER_TAG
-            docker stack deploy -c docker-compose.main.yml hellonodejsapp-stack
+            docker stack deploy -c docker-compose.${{ github.ref_name }}.yml $STACK_NAME
