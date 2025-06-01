@@ -51,19 +51,20 @@ jobs:
           port: ${{ vars.DEPLOY_PORT }}  # Use custom SSH port
           username: ${{ vars.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          target: ~/
           script: |
             export DOCKER_REPOSITORY=${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
             export BUILD_TAG=${{ github.ref_name }}
             export BRANCH=${{ github.ref_name }}
             if [ "$BRANCH" = "main" ]; then
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-production
-              export COMPOSE_FILE=docker-compose.production.yml
+              export COMPOSE_FILE=~/docker-compose.production.yml
             elif [ "$BRANCH" = "develop" ]; then
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-staging
-              export COMPOSE_FILE=docker-compose.develop.yml
+              export COMPOSE_FILE=~/docker-compose.develop.yml
             else
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-stack
-              export COMPOSE_FILE=docker-compose.yml
+              export COMPOSE_FILE=~/docker-compose.yml
             fi
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
             docker pull $DOCKER_REPOSITORY:$BUILD_TAG
