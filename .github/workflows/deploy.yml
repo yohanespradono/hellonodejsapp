@@ -44,20 +44,13 @@ jobs:
       DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_TAG: ${{ github.ref_name }}
     steps:
-      # - name: Copy compose file to server
-      #   run: |
-      #     export BRANCH=${{ github.ref_name }}
-      #     export SERVER_HOST=${{ vars.DEPLOY_HOST }}
-      #     export SERVER_PORT=${{ vars.DEPLOY_PORT }}
-      #     export SERVER_USER=${{ vars.DEPLOY_USER }}
-      #     if [ "$BRANCH" = "main" ]; then
-      #       export COMPOSE_FILE=docker-compose.production.yml
-      #     elif [ "$BRANCH" = "develop" ]; then
-      #       export COMPOSE_FILE=docker-compose.staging.yml
-      #     else
-      #       export COMPOSE_FILE=docker-compose.yml
-      #     fi
-      #     scp -P $SERVER_PORT $COMPOSE_FILE $SERVER_USER@$SERVER_HOST:~/
+      - name: Upload Compose File
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-file
+          path: |
+            docker-compose.production.yml
+            docker-compose.staging.yml
       - name: Check current active directory
         run: pwd && ls -la
       - name: SSH into Server & Deploy to Docker Swarm
