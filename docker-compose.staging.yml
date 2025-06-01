@@ -8,7 +8,7 @@ services:
     networks:
       - app-network
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=staging
       - APP_VERSION=${BUILD_TAG}
     healthcheck:
       #this runs from the container's perspective
