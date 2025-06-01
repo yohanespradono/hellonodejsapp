@@ -29,9 +29,9 @@ jobs:
       - name: Build & Push Docker Image
         run: |
           docker build -t $DOCKER_HUB_REPOSITORY:$BRANCH .
-          docker tag $DOCKER_HUB_REPOSITORY:$BRANCH
           docker push $DOCKER_HUB_REPOSITORY:$BRANCH
           if [ "$BRANCH" == "main" ]; then
+            docker tag $DOCKER_HUB_REPOSITORY:$BRANCH $DOCKER_HUB_REPOSITORY:latest
             docker push $DOCKER_HUB_REPOSITORY:latest
           fi
 
