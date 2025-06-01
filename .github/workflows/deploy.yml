@@ -1,0 +1,48 @@
+name: Deploy to Docker Swarm
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'main' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $DOCKER_USERNAME/nodejs-app:${{ github.sha }} .
+          docker tag $DOCKER_USERNAME/nodejs-app:${{ github.sha }} $DOCKER_USERNAME/nodejs-app:latest
+          docker push $DOCKER_USERNAME/nodejs-app:${{ github.sha }}
+          docker push $DOCKER_USERNAME/nodejs-app:latest
+
+  deploy:
+    needs: build  # Deploy only after successful build
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    steps:
+      - name: SSH into Server & Deploy to Docker Swarm
+        uses: appleboy/ssh-action@master
+        with:
+          host: dev.atulatech.com
+          port: 10022  # Use custom SSH port
+          username: root
+          #key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+            docker pull $DOCKER_USERNAME/test-node-app:latest
+            docker stack deploy -c docker-compose.${{github.ref_name}}.yml nodejs-app-stack
