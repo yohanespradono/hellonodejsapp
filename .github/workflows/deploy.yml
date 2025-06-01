@@ -14,6 +14,7 @@ jobs:
       DOCKER_USERNAME: ${{ vars.DOCKER_HUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_REPOSITORY }}
+      BRANCH: ${{ github.ref_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -27,10 +28,12 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $DOCKER_HUB_REPOSITORY:${GITHUB_SHA::7} .
-          docker tag $DOCKER_HUB_REPOSITORY:${GITHUB_SHA::7}  ${{ github.ref == 'main' && '$DOCKER_HUB_REPOSITORY:latest' }}
-          docker push $DOCKER_HUB_REPOSITORY:${GITHUB_SHA::7}
-          docker push $DOCKER_HUB_REPOSITORY:latest
+          docker build -t $DOCKER_HUB_REPOSITORY:$BRANCH .
+          docker tag $DOCKER_HUB_REPOSITORY:$BRANCH
+          docker push $DOCKER_HUB_REPOSITORY:$BRANCH
+          if [ "$BRANCH" == "main" ]; then
+            docker push $DOCKER_HUB_REPOSITORY:latest
+          fi
 
   deploy:
     needs: build  # Deploy only after successful build
