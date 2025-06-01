@@ -47,9 +47,9 @@ jobs:
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
         with:
-          host: dev.atulatech.com
-          port: 10022  # Use custom SSH port
-          username: root
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT }}  # Use custom SSH port
+          username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             export DOCKER_REPOSITORY=${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
