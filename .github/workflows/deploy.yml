@@ -58,6 +58,8 @@ jobs:
       #       export COMPOSE_FILE=docker-compose.yml
       #     fi
       #     scp -P $SERVER_PORT $COMPOSE_FILE $SERVER_USER@$SERVER_HOST:~/
+      - name: Check current active directory
+        run: pwd
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
         with:
