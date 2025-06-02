@@ -64,8 +64,8 @@ jobs:
           username: ${{ vars.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            /home/runner/work/hellonodejsapp/hellonodejsapp/docker-compose.production.yml
-            /home/runner/work/hellonodejsapp/hellonodejsapp/docker-compose.staging.yml
+            docker-compose.production.yml
+            docker-compose.staging.yml
           target: ~/
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
