@@ -54,6 +54,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy-artifacts
+      - name: List files after artifact download
+        run: pwd && ls -lR
       - name: Copy Files to Server
         uses: appleboy/scp-action@master
         with:
