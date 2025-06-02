@@ -54,7 +54,7 @@ jobs:
           else
             export COMPOSE_FILE=docker-compose.yml
           fi
-          touch ~/.ssh/known_hosts
+          mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
           ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
           scp -P $SERVER_PORT $COMPOSE_FILE $SERVER_USER@$SERVER_HOST:~/deployments/docker-compose/
   deploy:
