@@ -43,20 +43,16 @@ jobs:
           script: |
             mkdir -p ~/deployments/docker-compose
       - name: Copy Compose File to Server
-        run: |
-          export SERVER_HOST=${{ vars.DEPLOY_HOST }}
-          export SERVER_PORT=${{ vars.DEPLOY_PORT }}
-          export SERVER_USER=${{ vars.DEPLOY_USER }}
-          if [ "$BRANCH" = "main" ]; then
-            export COMPOSE_FILE=docker-compose.production.yml
-          elif [ "$BRANCH" = "develop" ]; then
-             export COMPOSE_FILE=docker-compose.staging.yml
-          else
-            export COMPOSE_FILE=docker-compose.yml
-          fi
-          mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
-          ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
-          scp -P $SERVER_PORT $COMPOSE_FILE $SERVER_USER@$SERVER_HOST:~/deployments/docker-compose/
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: |
+            docker-compose.production.yml
+            docker-compose.staging.yml
+          target: ~/deployments/docker-compose/
   deploy:
     needs: build  # Deploy only after successful build
     runs-on: ubuntu-latest
