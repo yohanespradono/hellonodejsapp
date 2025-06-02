@@ -42,7 +42,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             mkdir -p ~/deployments/docker-compose
-      - name: Copy Compose File to Server
+      - name: Copy Compose Files to Server
         run: |
           export SERVER_HOST=${{ vars.DEPLOY_HOST }}
           export SERVER_PORT=${{ vars.DEPLOY_PORT }}
