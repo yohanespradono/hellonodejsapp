@@ -9,11 +9,23 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint (add this)
 app.get('/health', (req, res) => {
+  // Helper function to humanize uptime in seconds
+  function humanizeUptime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return [
+      h > 0 ? `${h}h` : null,
+      m > 0 ? `${m}m` : null,
+      `${s}s`
+    ].filter(Boolean).join(' ');
+  }
+
   res.status(200).json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     version: process.env.APP_VERSION || '1.0.0',
-    uptime: process.uptime()
+    uptime: humanizeUptime(process.uptime())
   });
 });
 
