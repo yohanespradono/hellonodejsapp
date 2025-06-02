@@ -42,6 +42,7 @@ jobs:
       DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_TAG: ${{ github.ref_name }}
+      BRANCH: ${{ github.ref_name }}
     steps:
       - name: Ensure Deployment Directory Exists
         uses: appleboy/ssh-action@master
