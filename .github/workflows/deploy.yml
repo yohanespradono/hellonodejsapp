@@ -33,7 +33,25 @@ jobs:
             docker tag $DOCKER_HUB_REPOSITORY:$BRANCH $DOCKER_HUB_REPOSITORY:latest
             docker push $DOCKER_HUB_REPOSITORY:latest
           fi
-
+      - name: Ensure Deployment Directory Exists
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/deployments/docker-compose
+      - name: Copy Compose File to Server
+        run: |
+          export SERVER_HOST=${{ vars.DEPLOY_HOST }}
+          export SERVER_PORT=${{ vars.DEPLOY_PORT }}
+          export SERVER_USER=${{ vars.DEPLOY_USER }}
+          mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
+          scp -P $SERVER_PORT docker-compose.* $SERVER_USER@$SERVER_HOST:~/deployments/docker-compose/
   deploy:
     needs: build  # Deploy only after successful build
     runs-on: ubuntu-latest
@@ -43,21 +61,8 @@ jobs:
       DOCKER_HUB_REPOSITORY: ${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_HUB_APPNAME: ${{ vars.DOCKER_HUB_APPNAME }}
       DOCKER_TAG: ${{ github.ref_name }}
+      BRANCH: ${{ github.ref_name }}
     steps:
-      - name: Copy compose file to server
-        run: |
-          export BRANCH=${{ github.ref_name }}
-          export SERVER_HOST=${{ vars.DEPLOY_HOST }}
-          export SERVER_PORT=${{ vars.DEPLOY_PORT }}
-          export SERVER_USER=${{ vars.DEPLOY_USER }}
-          if [ "$BRANCH" = "main" ]; then
-            export COMPOSE_FILE=docker-compose.production.yml
-          elif [ "$BRANCH" = "develop" ]; then
-            export COMPOSE_FILE=docker-compose.staging.yml
-          else
-            export COMPOSE_FILE=docker-compose.yml
-          fi
-          scp -P $SERVER_PORT $COMPOSE_FILE $SERVER_USER@$SERVER_HOST:~/
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
         with:
@@ -81,4 +86,5 @@ jobs:
             fi
             docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
             docker pull $DOCKER_REPOSITORY:$BUILD_TAG
-            docker stack deploy -c $COMPOSE_FILE $STACK_NAME
+            
+            docker stack deploy -c ~/deployments/docker-compose/$COMPOSE_FILE $STACK_NAME
