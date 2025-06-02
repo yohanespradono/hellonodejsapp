@@ -74,7 +74,7 @@ jobs:
             export DOCKER_REPOSITORY=${{ vars.DOCKER_HUB_USER }}/${{ vars.DOCKER_HUB_APPNAME }}
             export BUILD_TAG=${{ github.ref_name }}
             export BRANCH=$BUILD_TAG
-            echo HASH=${{ github.sha }}
+            export HASH=${{ github.sha }}
             export APP_VERSION=${{ github.ref_name }}-${HASH:0:7}
             if [ "$BRANCH" = "main" ]; then
               export STACK_NAME=${{ vars.DOCKER_HUB_APPNAME }}-production
