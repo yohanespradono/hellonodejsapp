@@ -62,8 +62,8 @@ jobs:
           username: ${{ vars.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            docker-compose.production.yml
-            docker-compose.staging.yml
+            deploy-artifacts/docker-compose.production.yml
+            deploy-artifacts/docker-compose.staging.yml
           target: ~/
       - name: SSH into Server & Deploy to Docker Swarm
         uses: appleboy/ssh-action@master
